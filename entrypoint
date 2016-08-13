@@ -1,0 +1,13 @@
+#!/bin/bash -e
+
+if [ "${1:0:1}" = "-" ]; then
+    set -- uwsgi "$@"
+fi
+
+if [ "$1" = "uwsgi" ]; then
+    # run Python uwsgi
+    exec "$@" --plugin python27
+fi
+
+exec "$@"
+

@@ -1,0 +1,25 @@
+# !include frombase
+# !include tini
+
+ARG NEED_USER='django'
+ARG NEED_HOME='/home/django'
+
+# !include security
+
+# App-specific config
+RUN set -x \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends \
+        python-django python-pip python-virtualenv uwsgi-plugin-python uwsgi \
+    && apt-clean --aggressive \
+    && touch /etc/uwsgi/apps-available/default.ini \
+    && ln -s /etc/uwsgi/apps-available/default.ini /etc/uwsgi/apps-enabled/default.ini
+
+COPY entrypoint /
+
+USER django
+WORKDIR /home/django
+EXPOSE 8000
+
+ENTRYPOINT ["/tini", "--", "/entrypoint"]
+CMD ["uwsgi", "-s", ":8000", "--ini", "/etc/uwsgi/apps-enabled/default.ini"]
